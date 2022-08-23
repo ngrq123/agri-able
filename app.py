@@ -1,4 +1,5 @@
 # from folium.plugins import Draw
+from shapely.geometry import LineString
 from streamlit_folium import st_folium
 import folium
 import pandas as pd
@@ -8,7 +9,7 @@ import utils.extract_isdasoil as isdasoil
 
 
 def render_page():
-    isdasoil.populate_assets()
+    _ = isdasoil.populate_assets()
 
     dataset_id_mapping = {
         'Fertility Capability Classification': 'fcc',
@@ -18,18 +19,17 @@ def render_page():
         'Soil pH': 'ph'
     }
 
-    option = st.selectbox('Select dataset:', dataset_id_mapping.keys())
+    option = st.selectbox('Select dataset:', dataset_id_mapping.keys(), index=4)
     dataset_id = dataset_id_mapping[option]
 
     # Specify bounding box
     start_lat_lon = (-1.7622, 29.7138) 
     end_lat_lon = (-1.7897, 29.7419)
-    midpoint_lat_lon = (
-      start_lat_lon[0] + (end_lat_lon[0] - start_lat_lon[0]) / 2,
-      start_lat_lon[1] + (end_lat_lon[1] - start_lat_lon[1]) / 2
-    )
+    midpoint_lat_lon = LineString([start_lat_lon, end_lat_lon]).centroid
+    midpoint_lat_lon = (midpoint_lat_lon.x, midpoint_lat_lon.y)
 
-    data_arr, geojson, _ = isdasoil.get_bbox_data(dataset_id, start_lat_lon, end_lat_lon)
+    # data_arr, geojson, _ = isdasoil.get_bbox_data(dataset_id, start_lat_lon, end_lat_lon, url='https://isdasoil.s3.amazonaws.com/soil_data/ph/ph.tif')
+    data_arr, geojson, _ = isdasoil.get_point_data(dataset_id, midpoint_lat_lon, 300)
 
     df = pd.DataFrame(data_arr[0])
     df = df.stack().reset_index()
@@ -51,7 +51,7 @@ def render_page():
         legend_name=option
     ).add_to(africa_map)
 
-    # folium.Marker(midpoint_lat_lon, tooltip='Midpoint').add_to(africa_map)
+    folium.Marker(midpoint_lat_lon, tooltip='Midpoint').add_to(africa_map)
 
     folium.LayerControl().add_to(africa_map)
 

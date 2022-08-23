@@ -38,7 +38,6 @@ def get_url(id):
     return ASSETS[id].assets['image'].href 
 
 
-@st.cache
 def get_bbox_data(id, start_lat_lon, end_lat_lon):
     '''
     :param id: id of dataset

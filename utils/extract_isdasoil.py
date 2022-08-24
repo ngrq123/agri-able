@@ -21,8 +21,7 @@ CONVERSION_FUNCS_DICT = {
 }
 
 
-@st.cache
-def populate_assets():
+def _populate_isdasoil_assets():
     print('Populating iSDAsoil assets...')
     catalog = Catalog.from_file("https://isdasoil.s3.amazonaws.com/catalog.json")
 
@@ -36,12 +35,15 @@ def populate_assets():
     print('Populated iSDAsoil assets!')
 
 
-def get_url(id):
+def _get_url(id):
+    if len(ASSETS.keys()) == 0: _populate_isdasoil_assets()
+
     url = ASSETS[id].assets['image'].href
     print(url)
     return url
 
 
+@st.cache(allow_output_mutation=True)
 def get_bbox_data(id, start_lat_lon, end_lat_lon, url=None, union=True):
     '''
     :param id: id of dataset
@@ -53,7 +55,7 @@ def get_bbox_data(id, start_lat_lon, end_lat_lon, url=None, union=True):
     if url:
         file_location = url
     else:
-        file_location = get_url(id)
+        file_location = _get_url(id)
 
     geo_json_lst = []
 
@@ -168,6 +170,7 @@ def get_bbox_data(id, start_lat_lon, end_lat_lon, url=None, union=True):
     return arr, geo_json, new_profile
 
 
+@st.cache(allow_output_mutation=True)
 def get_point_data(id, lat_lon, vicinity_in_metres, url=None, union=True):
     '''
     :param id: id of dataset
@@ -179,7 +182,7 @@ def get_point_data(id, lat_lon, vicinity_in_metres, url=None, union=True):
     if url:
         file_location = url
     else:
-        file_location = get_url(id)
+        file_location = _get_url(id)
 
     geo_json_lst = []
 
@@ -292,7 +295,43 @@ def get_point_data(id, lat_lon, vicinity_in_metres, url=None, union=True):
     return arr, geo_json, new_profile
 
 
+@st.cache(allow_output_mutation=True)
+def get_point_data_no_geojson(id, lat_lon, vicinity_in_metres, url=None):
+    '''
+    :param id: id of dataset
+    :param start_lat_lon: upper left corner of the bounding box as lat, lon
+    :param end_lat_lon: lower right corner of the bounding box as lat, lon
+    :return: numpy array of the dataset, metadata required for writing back to tiff file
+    '''
+
+    if url:
+        file_location = url
+    else:
+        file_location = _get_url(id)
+
+    with rio.open(file_location) as file:
+        transformer = Transformer.from_crs("epsg:4326", file.crs)
+
+        # convert the data from lat/lon to x,y coords of the source dataset crs
+        coords = transformer.transform(lat_lon[0], lat_lon[1])
+
+        # get the location of the pixel at the given location (in lon/lat (x/y) order))
+        coords = file.index(coords[0], coords[1])
+        offset = round(vicinity_in_metres / 30 / 2)  # Each block is 30m, divide 2 for top/bottom and left/right
+
+        window = rio.windows.Window(coords[1] - offset, coords[0] - offset, offset * 2 + 1, offset * 2 + 1)
+
+        print('Getting data from file')
+        arr = file.read(window=window)
+    
+    arr = _back_transform(id, arr)
+
+    return arr
+
+
 def _back_transform(id, data):
+    if len(ASSETS.keys()) == 0: _populate_isdasoil_assets()
+
     print('Transforming data')
     conversion = ASSETS[id].extra_fields['back-transformation']
     return CONVERSION_FUNCS_DICT[conversion](data)

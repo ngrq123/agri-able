@@ -9,7 +9,7 @@ import utils.extract_isdasoil as isdasoil
 
 
 def render_page():
-    _ = isdasoil.populate_assets()
+    vicinity = st.slider('Select area (in metres): ', min_value=0, max_value=3000, value=300)
 
     dataset_id_mapping = {
         'Fertility Capability Classification': 'fcc',
@@ -28,8 +28,8 @@ def render_page():
     midpoint_lat_lon = LineString([start_lat_lon, end_lat_lon]).centroid
     midpoint_lat_lon = (midpoint_lat_lon.x, midpoint_lat_lon.y)
 
-    # data_arr, geojson, _ = isdasoil.get_bbox_data(dataset_id, start_lat_lon, end_lat_lon, url='https://isdasoil.s3.amazonaws.com/soil_data/ph/ph.tif')
-    data_arr, geojson, _ = isdasoil.get_point_data(dataset_id, midpoint_lat_lon, 300)
+    data_arr, geojson, _ = isdasoil.get_bbox_data(dataset_id, start_lat_lon, end_lat_lon, url='https://isdasoil.s3.amazonaws.com/soil_data/ph/ph.tif')
+    # data_arr, geojson, _ = isdasoil.get_point_data(dataset_id, midpoint_lat_lon, vicinity)
 
     df = pd.DataFrame(data_arr[0])
     df = df.stack().reset_index()

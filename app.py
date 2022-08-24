@@ -1,4 +1,5 @@
 # from folium.plugins import Draw
+from folium.plugins import Draw
 from shapely.geometry import LineString
 from streamlit_folium import st_folium
 import folium
@@ -8,28 +9,71 @@ import streamlit as st
 import utils.extract_isdasoil as isdasoil
 
 
+# Config 
+st.set_page_config(page_title='AWS-ASDI', 
+                   layout='wide', 
+                   initial_sidebar_state='expanded')
+
+
+DATASET_ID_MAPPING = {
+    'Fertility Capability Classification': 'fcc',
+    'Soil Nitrogen': 'nitrogen_total',
+    'Soil Phosphorous': 'phosphorous_extractable',
+    'Soil Potassium': 'potassium_extractable',
+    'Soil pH': 'ph'
+}
+
+
 def render_page():
-    vicinity = st.slider('Select area (in metres): ', min_value=0, max_value=3000, value=300)
-
-    dataset_id_mapping = {
-        'Fertility Capability Classification': 'fcc',
-        'Soil Nitrogen': 'nitrogen_total',
-        'Soil Phosphorous': 'phosphorous_extractable',
-        'Soil Potassium': 'potassium_extractable',
-        'Soil pH': 'ph'
-    }
-
-    option = st.selectbox('Select dataset:', dataset_id_mapping.keys(), index=4)
-    dataset_id = dataset_id_mapping[option]
-
-    # Specify bounding box
+    
+    # Specify initial bounding box
     start_lat_lon = (-1.7622, 29.7138) 
     end_lat_lon = (-1.7897, 29.7419)
     midpoint_lat_lon = LineString([start_lat_lon, end_lat_lon]).centroid
     midpoint_lat_lon = (midpoint_lat_lon.x, midpoint_lat_lon.y)
 
-    data_arr, geojson, _ = isdasoil.get_bbox_data(dataset_id, start_lat_lon, end_lat_lon, url='https://isdasoil.s3.amazonaws.com/soil_data/ph/ph.tif')
-    # data_arr, geojson, _ = isdasoil.get_point_data(dataset_id, midpoint_lat_lon, vicinity)
+    col1, col2 = st.columns([1, 3])
+
+    with col1:
+        # Render map
+        map = folium.Map(location=midpoint_lat_lon, width='50%', zoom_start=15)
+        st.text('Click on your Location on the Map')
+        selected_point = st_folium(map, width=1000, height=500)
+
+    with col2:
+        if selected_point['last_clicked']:
+            point = (selected_point['last_clicked']['lat'], selected_point['last_clicked']['lng'])
+            tooltip = 'Selected Point'    
+        else:
+            point = midpoint_lat_lon
+            tooltip ='Default Point'
+        
+        st.text('You selected')
+        map = folium.Map(location=point, zoom_start=15)
+        folium.Marker(point, tooltip=tooltip).add_to(map)
+        st_folium(map, width=1500, height=500)
+    
+    vicinity = st.slider('Select area (in metres): ', min_value=0, max_value=3000, value=300)
+
+    # Show DataFrame
+    df = pd.DataFrame([], columns=['x_idx', 'y_idx'])
+
+    for dataset in DATASET_ID_MAPPING.keys():
+        dataset_id = DATASET_ID_MAPPING[dataset]
+        data_arr = isdasoil.get_point_data(dataset_id, point, vicinity)
+        temp_df = pd.DataFrame(data_arr[0])
+        temp_df = temp_df.stack()
+        temp_df = temp_df.reset_index()
+        temp_df.columns = ['x_idx', 'y_idx', dataset]
+        df = df.merge(temp_df, how='outer', on=['x_idx', 'y_idx'])
+
+    st.dataframe(df, width=1500)
+
+    option = st.selectbox('Select dataset to plot on map:', DATASET_ID_MAPPING.keys(), index=4)
+    dataset_id = DATASET_ID_MAPPING[option]
+
+    # data_arr, geojson, _ = isdasoil.get_bbox_data(dataset_id, start_lat_lon, end_lat_lon)
+    geojson = isdasoil.get_point_geojson(dataset_id, point, vicinity)
 
     df = pd.DataFrame(data_arr[0])
     df = df.stack().reset_index()
@@ -51,11 +95,9 @@ def render_page():
         legend_name=option
     ).add_to(africa_map)
 
-    folium.Marker(midpoint_lat_lon, tooltip='Midpoint').add_to(africa_map)
-
+    folium.Marker(point, tooltip='Selected Point').add_to(africa_map)
     folium.LayerControl().add_to(africa_map)
-
-    st_folium(africa_map)
+    st_folium(africa_map, width=1500)
 
 
 if __name__ == '__main__':

@@ -170,8 +170,8 @@ def get_bbox_data(id, start_lat_lon, end_lat_lon, url=None, union=True):
     return arr, geo_json, new_profile
 
 
-@st.cache(allow_output_mutation=True)
-def get_point_data(id, lat_lon, vicinity_in_metres, url=None, union=True):
+@st.cache()
+def get_point_geojson(id, lat_lon, vicinity_in_metres, data_arr=None, union=True, url=None):
     '''
     :param id: id of dataset
     :param start_lat_lon: upper left corner of the bounding box as lat, lon
@@ -183,6 +183,8 @@ def get_point_data(id, lat_lon, vicinity_in_metres, url=None, union=True):
         file_location = url
     else:
         file_location = _get_url(id)
+
+    print("runningggg")
 
     geo_json_lst = []
 
@@ -198,10 +200,12 @@ def get_point_data(id, lat_lon, vicinity_in_metres, url=None, union=True):
 
         window = rio.windows.Window(coords[1] - offset, coords[0] - offset, offset * 2 + 1, offset * 2 + 1)
 
-        print('Getting data from file')
-        arr = file.read(window=window)
-
-        new_profile = file.profile.copy()
+        if not data_arr:
+            print('Getting data from file')
+            arr = file.read(window=window)
+            arr = _back_transform(id, arr)
+        else:
+            arr = data_arr
 
         # Get lon/lat
         transformer = Transformer.from_crs(file.crs, "epsg:4326")
@@ -231,15 +235,6 @@ def get_point_data(id, lat_lon, vicinity_in_metres, url=None, union=True):
                 }
                 inner_lst.append(polygon_dict)
             geo_json_lst.append(inner_lst)
-    
-    new_profile.update({
-        'height': window.height,
-        'width': window.width,
-        'count': file.count,
-        'transform': file.window_transform(window)
-    })
-
-    arr = _back_transform(id, arr)
 
     geo_json = []
 
@@ -292,11 +287,11 @@ def get_point_data(id, lat_lon, vicinity_in_metres, url=None, union=True):
     
     geo_json = geojson.FeatureCollection(geo_json)
 
-    return arr, geo_json, new_profile
+    return geo_json
 
 
 @st.cache(allow_output_mutation=True)
-def get_point_data_no_geojson(id, lat_lon, vicinity_in_metres, url=None):
+def get_point_data(id, lat_lon, vicinity_in_metres, url=None):
     '''
     :param id: id of dataset
     :param start_lat_lon: upper left corner of the bounding box as lat, lon

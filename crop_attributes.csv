@@ -1,0 +1,7 @@
+S/N,Crop,min_ph_soil,max_ph_soil,min_potassium,max_potassium,price,min_phosphorus,max_phosphorus
+1,Maize,5.8,6,65,90,208,25,50
+2,lentil,6,8,40,80,566,25,50
+3,rice,5.5,7,40,80,781,25,50
+4,kidney beans,5.5,6,40,80,566,25,50
+5,Plantain (bananas),5.5,7,40,80,566,25,50
+6,coffee,4.9,5.6,40,80,566,25,50

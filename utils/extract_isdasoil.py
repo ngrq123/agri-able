@@ -170,7 +170,7 @@ def get_bbox_data(id, start_lat_lon, end_lat_lon, url=None, union=True):
     return arr, geo_json, new_profile
 
 
-@st.cache()
+@st.cache(hash_funcs={geojson.feature.FeatureCollection: lambda _: None})
 def get_point_geojson(id, lat_lon, vicinity_in_metres, data_arr=None, union=True, url=None):
     '''
     :param id: id of dataset
@@ -183,9 +183,7 @@ def get_point_geojson(id, lat_lon, vicinity_in_metres, data_arr=None, union=True
         file_location = url
     else:
         file_location = _get_url(id)
-
-    print("runningggg")
-
+    
     geo_json_lst = []
 
     with rio.open(file_location) as file:

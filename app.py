@@ -73,7 +73,7 @@ def render_page():
     dataset_id = DATASET_ID_MAPPING[option]
 
     # data_arr, geojson, _ = isdasoil.get_bbox_data(dataset_id, start_lat_lon, end_lat_lon)
-    geojson = isdasoil.get_point_geojson(dataset_id, point, vicinity)
+    geo_json = isdasoil.get_point_geojson(dataset_id, point, vicinity)
 
     df = pd.DataFrame(data_arr[0])
     df = df.stack().reset_index()
@@ -84,7 +84,7 @@ def render_page():
     africa_map = folium.Map(location=midpoint_lat_lon, zoom_start=15)
 
     folium.Choropleth(
-        geo_data=geojson,
+        geo_data=geo_json,
         name=dataset_id,
         data=df,
         columns=['id', dataset_id],

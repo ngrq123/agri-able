@@ -43,7 +43,7 @@ def _get_url(id):
     return url
 
 
-@st.cache(allow_output_mutation=True)
+# @st.cache(allow_output_mutation=True)
 def get_bbox_data(id, start_lat_lon, end_lat_lon, url=None, union=True):
     '''
     :param id: id of dataset
@@ -170,7 +170,7 @@ def get_bbox_data(id, start_lat_lon, end_lat_lon, url=None, union=True):
     return arr, geo_json, new_profile
 
 
-@st.cache(hash_funcs={geojson.feature.FeatureCollection: lambda _: None})
+# @st.cache(hash_funcs={geojson.feature.FeatureCollection: lambda _: None})
 def get_point_geojson(id, lat_lon, vicinity_in_metres, data_arr=None, union=True, url=None):
     '''
     :param id: id of dataset

@@ -66,7 +66,7 @@ def render_page():
         temp_df = temp_df.reset_index()
         temp_df.columns = ['x_idx', 'y_idx', dataset]
         df = df.merge(temp_df, how='outer', on=['x_idx', 'y_idx'])
-
+    
     st.dataframe(df, width=1500)
 
     option = st.selectbox('Select dataset to plot on map:', DATASET_ID_MAPPING.keys(), index=4)
@@ -81,7 +81,7 @@ def render_page():
     df['id'] = df['x_idx'].astype('str') + '|' + df['y_idx'].astype('str')
 
     # Plot map
-    africa_map = folium.Map(location=midpoint_lat_lon, zoom_start=15)
+    africa_map = folium.Map(location=point, zoom_start=15)
 
     folium.Choropleth(
         geo_data=geo_json,

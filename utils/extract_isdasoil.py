@@ -322,6 +322,20 @@ def get_point_data(id, lat_lon, vicinity_in_metres, url=None):
     return arr
 
 
+def get_fcc_mapping():
+    if len(ASSETS.keys()) == 0: _populate_isdasoil_assets()
+
+    print('Retrieving FCC mapping')
+    fcc_mapping_url = ASSETS['fcc'].assets['metadata'].href
+    fcc_mapping_df = pd.read_csv(fcc_mapping_url)
+    
+    fcc_mapping_mle_df = fcc_mapping_df['Description'].str.lower().str.get_dummies(', ')
+    fcc_mapping_df = fcc_mapping_df.join(fcc_mapping_mle_df)
+    
+    fcc_mapping_df.columns = ['fcc_' + col.lower().strip().replace(' ', '_') for col in fcc_mapping_df.columns]
+    return fcc_mapping_df
+
+
 def _back_transform(id, data):
     if len(ASSETS.keys()) == 0: _populate_isdasoil_assets()
 

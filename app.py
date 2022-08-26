@@ -67,6 +67,12 @@ def render_page():
         temp_df.columns = ['x_idx', 'y_idx', dataset]
         df = df.merge(temp_df, how='outer', on=['x_idx', 'y_idx'])
     
+    # Join with FCC mapping
+    fcc_mapping_df = isdasoil.get_fcc_mapping()
+    df = df.merge(fcc_mapping_df, how='left', left_on='Fertility Capability Classification', right_on='fcc_value')
+    df = df.drop('fcc_value', axis=1)
+
+    df.to_csv('sample_isdasoil_data.csv', index=False)
     st.dataframe(df, width=1500)
 
     option = st.selectbox('Select dataset to plot on map:', DATASET_ID_MAPPING.keys(), index=4)

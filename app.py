@@ -7,7 +7,7 @@ import pandas as pd
 import streamlit as st
 
 import utils.extract_isdasoil as isdasoil
-
+import utils.functions as functions
 
 # Config 
 st.set_page_config(page_title='AWS-ASDI', 
@@ -47,12 +47,13 @@ def render_page():
         else:
             point = midpoint_lat_lon
             tooltip ='Default Point'
-        
-        st.text('You selected')
+
+        res = functions.reverse_geocode(point)
+        st.text(f"You selected: {res['display_name']}")
         map = folium.Map(location=point, zoom_start=15)
         folium.Marker(point, tooltip=tooltip).add_to(map)
         st_folium(map, width=1500, height=500)
-    
+
     vicinity = st.slider('Select area (in metres): ', min_value=0, max_value=3000, value=300)
 
     # Show DataFrame
@@ -71,6 +72,8 @@ def render_page():
     fcc_mapping_df = isdasoil.get_fcc_mapping()
     df = df.merge(fcc_mapping_df, how='left', left_on='Fertility Capability Classification', right_on='fcc_value')
     df = df.drop('fcc_value', axis=1)
+
+    df['country'] = res['address']['country']
 
     df.to_csv('sample_isdasoil_data.csv', index=False)
     st.dataframe(df, width=1500)

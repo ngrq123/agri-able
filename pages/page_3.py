@@ -1,6 +1,10 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import altair as alt
+
+import utils.functions as functions
+
 from streamlit_option_menu import option_menu
 import streamlit.components.v1 as html
 
@@ -17,15 +21,48 @@ st.set_page_config(
 
 )
 
-# calling all the data
-d = pd.read_csv ("crop_attributes.csv")
-crop_attribute_df = pd.DataFrame(data=d)
-
-isdasoil_df = pd.read_csv("sample_isdasoil_data.csv")
-isdasoil_df = pd.DataFrame(data=isdasoil_df)
-
+# reading in all the data
+crop_attribute_df = pd.read_csv ("data/crop_attributes.csv")
+isdasoil_df = pd.read_csv("data/sample_isdasoil_data.csv")
 
 st.header("Properties based on the location you selected: ")
+
+# country-level weather and rainfall
+country_code = 'rw' #will come from reverse geocode, hardcode first
+country = 'Rwanda' #will come from reverse geocode, hardcode first
+st.write(f'Selected country: {country}')
+
+temp = functions.extract_country_weather(country_code, 'temp')
+rainfall = functions.extract_country_weather(country_code, 'rainfall')
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.caption(f'Monthly Rainfall in {country} (2021)')
+    st.dataframe(rainfall.style.format("{:.2f}"))
+
+    c = alt.Chart(rainfall.T.reset_index(), title=f"Monthly Rainfall in {country}").mark_line().encode(
+        alt.X('index',title='Month'),
+        alt.Y('rainfall', title='Total Rainfall (mm)'),
+        tooltip=[
+            alt.Tooltip("index", title="Month"),
+            alt.Tooltip("rainfall", title="Total Rainfall (mm)")]
+    ).interactive()
+    st.altair_chart(c, use_container_width=True)
+    st.write(f'Total annual rainfall in {country} is ', float(rainfall.sum(axis=1)))
+
+with col2:
+    st.caption(f'Monthly Temperature in {country} (2021)')
+    st.dataframe(temp.style.format("{:.2f}"))
+    c = alt.Chart(temp.T.reset_index(), title=f"Monthly Temperature in {country}").mark_line().encode(
+        alt.X('index',title='Month'),
+        alt.Y('temp', title='Average Temp (C)'),
+        tooltip=[
+            alt.Tooltip("index", title="Month"),
+            alt.Tooltip("temp", title="Average Temp (C)")]
+    ).interactive()
+    st.altair_chart(c, use_container_width=True)
+    st.write(f'Average temperature in {country} is ', float(temp.sum(axis=1))/12)
 
 st.write(isdasoil_df)
 

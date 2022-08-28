@@ -1,4 +1,5 @@
 import requests
+import pandas as pd
 
 def reverse_geocode(lat_lon):
     """
@@ -12,3 +13,21 @@ def reverse_geocode(lat_lon):
     response = r.json()
 
     return response
+
+def extract_country_weather(country_code, variable):
+    """
+    Given a country_code, extracts rainfall/temp data from csv and performs some preprocessing.
+    :param country_code: String, Alpha-2 country code (e.g. RW for rwanda)
+    :param variable: String, only either 'rainfall' or 'temp' accepted.
+    :return:
+    """
+    if variable not in ['rainfall', 'temp']:
+        raise Exception('not yet implemented')
+    else:
+        country_code = str.upper(country_code)
+        df = pd.read_csv(f"data/africa_{variable}_cleaned_2021.csv")
+        df = df[df['country_code_alpha2'] == country_code].iloc[:,-12:].reset_index(drop=True)
+        df.columns = pd.to_datetime([str(i) + '/2021' for i in range(1, 13)]).date
+        df.index=[variable]
+        return df
+

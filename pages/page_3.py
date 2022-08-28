@@ -74,33 +74,64 @@ soil_pH = isdasoil_df["Soil pH"].mean()
 fcc_med = isdasoil_df["Fertility Capability Classification"].median()
 
 #splicing out fcc cols for further calculation
-new_df = isdasoil_df.iloc[:, 8:]
-new_df = new_df.drop('fcc_no_constraints',axis=1)
-list_of_cols = list(new_df.columns)
+constraints_df = isdasoil_df.iloc[:, 8:]
+constraints_df = constraints_df.drop('fcc_no_constraints',axis=1)
+list_of_cols = list(constraints_df.columns)
 
-def cal_no_constraints(df):
+# print(list_of_cols)
+
+def cal_no_constraints(filtered_df, cols_list):
     # calculates the % of land with no constraints
-    filtered_df = isdasoil_df.loc[(isdasoil_df['fcc_al_toxicity'] == 0) 
-                                & (isdasoil_df['fcc_calcareous'] == 0)
-                                & (isdasoil_df['fcc_gravelly'] == 0)
-                                & (isdasoil_df['fcc_high_erosion_risk_-_shallow_depth'] == 0)
-                                & (isdasoil_df['fcc_high_erosion_risk_-_steep_slope'] == 0)
-                                & (isdasoil_df['fcc_high_erosion_risk_-_textual_contrast'] == 0)
-                                & (isdasoil_df['fcc_high_leaching_potential'] == 0)
-                                & (isdasoil_df['fcc_low_k'] == 0)
-                                & (isdasoil_df['fcc_no_data'] == 0)
-                                & (isdasoil_df['fcc_shallow'] == 0)
-                                & (isdasoil_df['fcc_slope'] == 0)
-                                & (isdasoil_df['fcc_sulfidic'] == 0)
-                            ]
+    for col in cols_list:
+        filtered_df = filtered_df.loc[(filtered_df[col] == 0)]
+    
     filtered_len = len(filtered_df)
     total_rows = len(isdasoil_df)
     no_constraints_percent = (filtered_len/total_rows) * 100
 
     return no_constraints_percent
 
-st.header("Percentage of Land with no constraints")
-st.subheader(str(cal_no_constraints(isdasoil_df))+"% able to grow")
+
+def cal_growable_mods(cols_list):
+    cols_list = cols_list.copy()
+    modifiable_list = ['fcc_al_toxicity', 'fcc_calcareous',
+                        'fcc_gravelly','fcc_high_erosion_risk_-_shallow_depth',
+                        'fcc_high_erosion_risk_-_steep_slope', 'fcc_high_leaching_potential',
+                        'fcc_low_k','fcc_no_constraints',
+                        'fcc_shallow','fcc_slope','fcc_sulfidic']
+
+    for col in modifiable_list:
+        if col in cols_list:
+            # print(col)
+            cols_list.remove(col)
+    
+    # st.write(cols_list)
+    # print(cols_list)    
+    value = cal_no_constraints(isdasoil_df,cols_list)
+    return value
+
+col1, col2 = st.columns(2)
+with col1:
+    st.subheader("Percentage of Land with no constraints")
+    st.write(str(cal_no_constraints(isdasoil_df,list_of_cols))+"% able to grow")
+with col2:
+    st.subheader("Percentage of land growable with modifications")
+    st.write(str(cal_growable_mods(list_of_cols))+ "% able to grow")
+
+
+# this part generates the FCC charts
+constraints_sum =constraints_df.sum(axis = 0 , skipna = True).to_frame()
+constraints_sum.reset_index(inplace=True)
+constraints_sum.columns =['fcc','Count']
+
+constraints_sum=constraints_sum[constraints_sum!=0].dropna()
+
+
+bar_chart = alt.Chart(constraints_sum).mark_bar().encode(
+    y='Count', x='fcc').properties(height=500)
+st.altair_chart(bar_chart, use_container_width=True)
+
+
 
 
 # this part returns a dictionary of all the fcc % values mapping by percentage
@@ -108,8 +139,8 @@ fcc_dict = {}
 
 
 for col in list_of_cols:
-    value = (new_df[col] == 1).sum()
-    total_rows = len(new_df.index)
+    value = (constraints_df[col] == 1).sum()
+    total_rows = len(constraints_df.index)
     percent_of = (value / total_rows) *100
     fcc_dict[col] = percent_of 
 
@@ -151,9 +182,11 @@ suitable_crops = {}
 #below appends a list of  crops that meets falls within the range of min max into a dictonary to display into a table
 potassium_checker = (soil_pota_avg >= crop_attribute_df["min_potassium"]) & (soil_pota_avg <= crop_attribute_df["max_potassium"])
 pota = crop_attribute_df.loc[potassium_checker, "Crop"].tolist()
+# pota.append('lentil')
 
 phosphorus_checker = (soil_phos_avg >= crop_attribute_df["min_phosphorus"]) & (soil_phos_avg <= crop_attribute_df["max_phosphorus"])
 pho = crop_attribute_df.loc[phosphorus_checker, "Crop"].tolist()
+
 # st.write(pho)
 
 ph_checker = (soil_pH >= crop_attribute_df["min_ph_soil"]) & (soil_pH <= crop_attribute_df["max_ph_soil"])
@@ -179,10 +212,30 @@ for crop in ph:
         suitable_crops[crop].append("this are has optimal levels of pH levels for {}".format(crop))
 
 
-st.write(suitable_crops)
+# st.write(suitable_crops)
+
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.subheader("Crops")
+with col2:
+    st.subheader("Description")
+with col3:
+    st.subheader("Suitability")
+with col4:
+    st.subheader("Modifiers")
 
 for crop in suitable_crops:
-    st.subheader(crop)
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.subheader(crop)
+        st.write("insert image")
+    
+    with col2:
+        st.write("lorem-ipsum")
+    
+    with col3:
+        for desc in suitable_crops[crop]:
+            st.write('- ' + desc)
 
 
 #converting the dict to df

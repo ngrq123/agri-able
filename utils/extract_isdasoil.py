@@ -19,7 +19,19 @@ CONVERSION_FUNCS_DICT = {
     "expm1(x/10)": np.vectorize(lambda x: np.expm1(x / 10), otypes=["float32"]),
     "%3000": np.vectorize(lambda x: int(x%3000), otypes=["int16"])
 }
-
+FCC_CONSTRAINTS_DICT = {
+    'fcc_al_toxicity': 'Aluminium toxicity',
+    'fcc_calcareous': 'Calcareous',
+    'fcc_gravelly': 'Gravel',
+    'fcc_high_erosion_risk_-_shallow_depth': 'High erosion risk: Shallow depth',
+    'fcc_high_erosion_risk_-_steep_slope': 'High erosion risk: Steep slope',
+    'fcc_high_erosion_risk_-_textual_contrast': 'High erosion risk - textual discontinuity',
+    'fcc_high_leaching_potential': 'High leaching potential',
+    'fcc_low_k': 'Low potassium reserves',
+    'fcc_shallow': 'Shallow',
+    'fcc_slope': 'Slope',
+    'fcc_sulfidic': 'Sulfidic'
+}
 
 def _populate_isdasoil_assets():
     print('Populating iSDAsoil assets...')

@@ -11,7 +11,6 @@ import rasterio as rio
 import streamlit as st
 
 
-ASSETS = dict()
 CONVERSION_FUNCS_DICT = {
     "x": np.vectorize(lambda x: x),
     "x/10": np.vectorize(lambda x: x/10, otypes=["float32"]),
@@ -19,9 +18,23 @@ CONVERSION_FUNCS_DICT = {
     "expm1(x/10)": np.vectorize(lambda x: np.expm1(x / 10), otypes=["float32"]),
     "%3000": np.vectorize(lambda x: int(x%3000), otypes=["int16"])
 }
+FCC_CONSTRAINTS_DICT = {
+    'fcc_al_toxicity': 'Aluminium toxicity',
+    'fcc_calcareous': 'Calcareous',
+    'fcc_gravelly': 'Gravel',
+    'fcc_high_erosion_risk_-_shallow_depth': 'High erosion risk: Shallow depth',
+    'fcc_high_erosion_risk_-_steep_slope': 'High erosion risk: Steep slope',
+    'fcc_high_erosion_risk_-_textual_contrast': 'High erosion risk - textual discontinuity',
+    'fcc_high_leaching_potential': 'High leaching potential',
+    'fcc_low_k': 'Low potassium reserves',
+    'fcc_shallow': 'Shallow',
+    'fcc_slope': 'Slope',
+    'fcc_sulfidic': 'Sulfidic'
+}
 
+def get_isdasoil_assets():
+    assets_dict = dict()
 
-def _populate_isdasoil_assets():
     print('Populating iSDAsoil assets...')
     catalog = Catalog.from_file("https://isdasoil.s3.amazonaws.com/catalog.json")
 
@@ -30,15 +43,14 @@ def _populate_isdasoil_assets():
             for asset in item.assets.values():
                 if asset.roles == ['data']:
                     # save all items to a dictionary as we go along
-                    ASSETS[item.id] = item
+                    assets_dict[item.id] = item
     
     print('Populated iSDAsoil assets!')
+    return assets_dict
 
 
 def _get_url(id):
-    if len(ASSETS.keys()) == 0: _populate_isdasoil_assets()
-
-    url = ASSETS[id].assets['image'].href
+    url = st.session_state['ASSETS'][id].assets['image'].href
     print(url)
     return url
 
@@ -139,17 +151,26 @@ def get_bbox_data(id, start_lat_lon, end_lat_lon, url=None, union=True):
                         polygons_lst.append(geo_json_lst[area_x][area_y])
 
                         # Add surrounding areas to frontier
-                        #   x, y  | x+1, y
-                        #  x, y-1 | 
-                        for offset in [-1, 1]:
-                            neighbour_x = area_x + offset if offset == 1 else area_x
-                            neighbour_y = area_y + offset if offset == -1 else area_y
+                        #   x, y  | x, y+1
+                        #  x+1, y | 
+                        # Down
+                        neighbour_x = area_x + 1
+                        neighbour_y = area_y
 
-                            if neighbour_x >= 0 and \
-                                neighbour_y >= 0 and \
-                                neighbour_x < x_lim and \
-                                neighbour_y < y_lim:
-                                frontier.append([neighbour_x, neighbour_y])
+                        if neighbour_x >= 0 and \
+                            neighbour_y >= 0 and \
+                            neighbour_x < x_lim and \
+                            neighbour_y < y_lim:
+                            frontier.append([neighbour_x, neighbour_y])
+                        # Right
+                        neighbour_x = area_x
+                        neighbour_y = area_y + 1
+
+                        if neighbour_x >= 0 and \
+                            neighbour_y >= 0 and \
+                            neighbour_x < x_lim and \
+                            neighbour_y < y_lim:
+                            frontier.append([neighbour_x, neighbour_y])
 
                 if len(polygons_lst) > 0:
                     # Merge polygons
@@ -198,12 +219,12 @@ def get_point_geojson(id, lat_lon, vicinity_in_metres, data_arr=None, union=True
 
         window = rio.windows.Window(coords[1] - offset, coords[0] - offset, offset * 2 + 1, offset * 2 + 1)
 
-        if not data_arr:
+        if data_arr is None:
             print('Getting data from file')
             arr = file.read(window=window)
             arr = _back_transform(id, arr)
         else:
-            arr = data_arr
+            arr = np.array([data_arr])
 
         # Get lon/lat
         transformer = Transformer.from_crs(file.crs, "epsg:4326")
@@ -257,17 +278,26 @@ def get_point_geojson(id, lat_lon, vicinity_in_metres, data_arr=None, union=True
                         polygons_lst.append(geo_json_lst[area_x][area_y])
 
                         # Add surrounding areas to frontier
-                        #   x, y  | x+1, y
-                        #  x, y-1 | 
-                        for offset in [-1, 1]:
-                            neighbour_x = area_x + offset if offset == 1 else area_x
-                            neighbour_y = area_y + offset if offset == -1 else area_y
+                        #   x, y  | x, y+1
+                        #  x+1, y | 
+                        # Down
+                        neighbour_x = area_x + 1
+                        neighbour_y = area_y
 
-                            if neighbour_x >= 0 and \
-                                neighbour_y >= 0 and \
-                                neighbour_x < x_lim and \
-                                neighbour_y < y_lim:
-                                frontier.append([neighbour_x, neighbour_y])
+                        if neighbour_x >= 0 and \
+                            neighbour_y >= 0 and \
+                            neighbour_x < x_lim and \
+                            neighbour_y < y_lim:
+                            frontier.append([neighbour_x, neighbour_y])
+                        # Right
+                        neighbour_x = area_x
+                        neighbour_y = area_y + 1
+
+                        if neighbour_x >= 0 and \
+                            neighbour_y >= 0 and \
+                            neighbour_x < x_lim and \
+                            neighbour_y < y_lim:
+                            frontier.append([neighbour_x, neighbour_y])
 
                 if len(polygons_lst) > 0:
                     # Merge polygons
@@ -323,10 +353,8 @@ def get_point_data(id, lat_lon, vicinity_in_metres, url=None):
 
 
 def get_fcc_mapping():
-    if len(ASSETS.keys()) == 0: _populate_isdasoil_assets()
-
     print('Retrieving FCC mapping')
-    fcc_mapping_url = ASSETS['fcc'].assets['metadata'].href
+    fcc_mapping_url = st.session_state['ASSETS']['fcc'].assets['metadata'].href
     fcc_mapping_df = pd.read_csv(fcc_mapping_url)
     
     fcc_mapping_mle_df = fcc_mapping_df['Description'].str.lower().str.get_dummies(', ')
@@ -337,10 +365,8 @@ def get_fcc_mapping():
 
 
 def _back_transform(id, data):
-    if len(ASSETS.keys()) == 0: _populate_isdasoil_assets()
-
     print('Transforming data')
-    conversion = ASSETS[id].extra_fields['back-transformation']
+    conversion = st.session_state['ASSETS'][id].extra_fields['back-transformation']
     return CONVERSION_FUNCS_DICT[conversion](data)
 
 

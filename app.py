@@ -2,9 +2,24 @@
 
 import pandas as pd
 import streamlit as st
-from streamlit_pages.streamlit_pages import MultiPage
+import utils.extract_isdasoil as isdasoil
 
- 
+
+# Config 
+st.set_page_config(page_title='AWS-ASDI', 
+                   layout='wide', 
+                   initial_sidebar_state='expanded')
+
+if 'point' not in st.session_state:
+    st.session_state['point'] = (-1.77595, 29.72785)
+
+if 'vicinity' not in st.session_state:
+    st.session_state['vicinity'] = 300
+
+if 'is_selected' not in st.session_state:
+    st.session_state['is_selected'] = False
+
+
 def main_page():
     st.markdown("# Main page 🎈")
     st.sidebar.markdown("# Main page 🎈")

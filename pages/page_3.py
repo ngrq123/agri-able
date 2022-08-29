@@ -5,9 +5,6 @@ import altair as alt
 
 import utils.functions as functions
 
-from streamlit_option_menu import option_menu
-import streamlit.components.v1 as html
-
 # Page 1: Settings Page
 # Page 2: Descriptive Views, FCC constraints, plot distribution of the number of constraints
 # Page 3: based on the number of constraints, figure out which ones are modifiable --> if modifable, re-calcaulte the percentage of land with constraints (as-is and to-be)

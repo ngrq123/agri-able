@@ -2,7 +2,12 @@
 
 import pandas as pd
 import streamlit as st
-from streamlit_pages.streamlit_pages import MultiPage
+
+
+# Config 
+st.set_page_config(page_title='AWS-ASDI', 
+                   layout='wide', 
+                   initial_sidebar_state='expanded')
 
  
 def main_page():

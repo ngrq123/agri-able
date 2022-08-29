@@ -9,11 +9,6 @@ import streamlit as st
 import utils.extract_isdasoil as isdasoil
 import utils.functions as functions
 
-# Config 
-st.set_page_config(page_title='AWS-ASDI', 
-                   layout='wide', 
-                   initial_sidebar_state='expanded')
-
 
 DATASET_ID_MAPPING = {
     'Fertility Capability Classification': 'fcc',
@@ -75,7 +70,7 @@ def render_page():
 
     df['country'] = res['address']['country']
 
-    df.to_csv('sample_isdasoil_data.csv', index=False)
+    df.to_csv('sample_isdasoil_data_' + str(point[0]) + '_' + str(point[1]) + '_.csv', index=False)
     st.dataframe(df, width=1500)
 
     option = st.selectbox('Select dataset to plot on map:', DATASET_ID_MAPPING.keys(), index=4)

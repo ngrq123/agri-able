@@ -8,6 +8,7 @@ import utils.functions as functions
 
 from streamlit_option_menu import option_menu
 import streamlit.components.v1 as components
+import hydralit_components as hc
 
 # Page 1: Settings Page
 # Page 2: Descriptive Views, FCC constraints, plot distribution of the number of constraints
@@ -24,7 +25,9 @@ st.set_page_config(
 
 # reading in all the data
 crop_attribute_df = pd.read_csv ("data/crop_attributes.csv")
-isdasoil_df = pd.read_csv("data/sample_isdasoil_data.csv")
+isdasoil_df = pd.read_csv("data/isdasoil/sample_isdasoil_data_-2.4039269685152282_31.239624023437504_.csv")
+
+description_df = pd.read_csv ("data/crops.csv")
 
 st.header("Properties based on the location you selected: ")
 
@@ -164,33 +167,27 @@ def cal_growable_mods(cols_list):
     value = cal_no_constraints(isdasoil_df,cols_list)
     return value
 
+
+st.header("FCC Information about Selected Plot")
+theme_neutral = {'bgcolor': '#f9f9f9','title_color': 'orange','content_color': 'orange','icon_color': 'orange', 'icon': 'fa fa-question-circle'}
+theme_good = {'bgcolor': '#EFF8F7','title_color': 'green','content_color': 'green','icon_color': 'green', 'icon': 'fa fa-check-circle'}
 col1, col2 = st.columns(2)
-text_col = st.get_option('theme.textColor')
-st.write(text_col)
+
+def theme(value):
+    if float(value) > 50.0:
+        return "theme_good"
+    else:
+        return "theme_neutral"
+
 with col1:
-    components.html(
-        f"""
-        <div style="color: #FAFAFA ; font-family: sans-serif ; border: 1px solid #31333F; border-radius:5px; padding:5px 15px;">
-            <div>
-                <h2> Percentage of Land with no constraints </h4>
-                <p>{cal_no_constraints(isdasoil_df,list_of_cols)}% able to grow.</p>
-            </div>
-        </div>
-        """
-    )
+    value = cal_no_constraints(isdasoil_df,list_of_cols)
+    card_theme = theme(value)
+    hc.info_card(title= value ,content='Percentage of Land with no constraints',key='first',bar_value=value, theme_override=card_theme)
+    
 with col2:
-    components.html(
-        f"""
-        <div style="color: {text_col} ; font-family: sans-serif ; border: 1px solid #31333F; border-radius:5px; padding:5px 15px;">
-            <div>
-                <h2> Percentage of Land with no constraints </h4>
-                <p>{cal_growable_mods(list_of_cols)}% able to grow.</p>
-            </div>
-        </div>
-        """
-    )
-    # st.subheader("Percentage of land growable with modifications")
-    # st.write(str(cal_growable_mods(list_of_cols))+ "% able to grow")
+    value2 = cal_growable_mods(list_of_cols)
+    card_theme = theme(value2)
+    hc.info_card(title=value2, content='Percentage of land growable with modifications',key='sec',bar_value=value2, theme_override=card_theme)
 
 
 # this part generates the FCC charts
@@ -200,17 +197,7 @@ constraints_sum.columns =['fcc','Count']
 
 constraints_sum=constraints_sum[constraints_sum!=0].dropna()
 
-
-bar_chart = alt.Chart(constraints_sum).mark_bar().encode(
-    y='Count', x='fcc').properties(height=500)
-st.altair_chart(bar_chart, use_container_width=True)
-
-
-
-
-# this part returns a dictionary of all the fcc % values mapping by percentage
 fcc_dict = {}
-
 
 for col in list_of_cols:
     value = (constraints_df[col] == 1).sum()
@@ -232,16 +219,31 @@ def clean_fcc_dict(fcc_dict):
     
     return fcc_dict
 
-st.write("below shows the average of the soil information")
 
-st.write(clean_fcc_dict(fcc_dict))
+col1, col2 = st.columns(2)
+with col1:
+    st.subheader("Proportion of land with FCC Constraints")
+    bar_chart = alt.Chart(constraints_sum).mark_bar().encode(
+        y='Count', x='fcc').properties(height=500)
+    st.altair_chart(bar_chart, use_container_width=True)
+    # st.write(clean_fcc_dict(fcc_dict))
 
-st.write("nitrogen:", soil_nitro_avg)
-st.write("phosphorous:", soil_phos_avg)
-st.write("potassium:", soil_pota_avg)
-st.write("pH:", soil_pH)
-st.write('rainfall:', mean_rainfall[0])
-st.write('temp:', mean_temp[0])
+with col2:
+    st.subheader("Below shows the average of the soil information:")
+    st.write("Nitrogen:", soil_nitro_avg)
+    st.write("Phosphorous:", soil_phos_avg)
+    st.write("Potassium:", soil_pota_avg)
+    st.write("pH Levels:", soil_pH)
+    st.write('Rainfall:', mean_rainfall[0])
+    st.write('Temperature:', mean_temp[0])
+
+
+
+
+# this part returns a dictionary of all the fcc % values mapping by percentage
+
+
+
 
 st.header("Proposed Modifications")
 
@@ -302,31 +304,49 @@ for crop in temp:
         suitable_crops[crop].append("this are has optimal levels of temperature for {}".format(crop))
 
 
+
 # st.write(suitable_crops)
 
-col1, col2, col3, col4 = st.columns(4)
+
+suitable_crops = dict(sorted(suitable_crops.items(), key= lambda x: len(x[1]), reverse=True))
+
+# st.write(suitable_crops)
+
+# st.write(description_df)
+
+col1, col2, col3, col4, col5 = st.columns(5)
 with col1:
     st.subheader("Crops")
 with col2:
-    st.subheader("Description")
+    st.subheader("Image")
 with col3:
-    st.subheader("Suitability")
+    st.subheader("Description")
 with col4:
+    st.subheader("Suitability")
+with col5:
     st.subheader("Adjustments")
 
+
 for crop in suitable_crops:
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         st.subheader(crop)
-        st.write("insert image")
-    
+
     with col2:
-        st.write("lorem-ipsum")
+        url = description_df.loc[description_df['Crop'] == crop]['URL'].item()
+        st.image(url, use_column_width='always')
+        
     
     with col3:
+        description = description_df.loc[description_df['Crop'] == crop]['Description'].item()
+        st.write(description)
+
+    with col4:
         for desc in suitable_crops[crop]:
             st.write('- ' + desc)
-
+    
+    with col5:
+        st.write("adjustment")
 
 #converting the dict to df
 # recommended = pd.DataFrame.from_dict(suitable_crops)

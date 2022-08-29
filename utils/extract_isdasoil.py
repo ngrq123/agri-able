@@ -11,7 +11,6 @@ import rasterio as rio
 import streamlit as st
 
 
-ASSETS = dict()
 CONVERSION_FUNCS_DICT = {
     "x": np.vectorize(lambda x: x),
     "x/10": np.vectorize(lambda x: x/10, otypes=["float32"]),
@@ -33,7 +32,7 @@ FCC_CONSTRAINTS_DICT = {
     'fcc_sulfidic': 'Sulfidic'
 }
 
-def _populate_isdasoil_assets():
+def populate_isdasoil_assets():
     print('Populating iSDAsoil assets...')
     catalog = Catalog.from_file("https://isdasoil.s3.amazonaws.com/catalog.json")
 
@@ -42,15 +41,13 @@ def _populate_isdasoil_assets():
             for asset in item.assets.values():
                 if asset.roles == ['data']:
                     # save all items to a dictionary as we go along
-                    ASSETS[item.id] = item
+                    st.session_state['ASSETS'][item.id] = item
     
     print('Populated iSDAsoil assets!')
 
 
 def _get_url(id):
-    if len(ASSETS.keys()) == 0: _populate_isdasoil_assets()
-
-    url = ASSETS[id].assets['image'].href
+    url = st.session_state['ASSETS'][id].assets['image'].href
     print(url)
     return url
 
@@ -335,10 +332,8 @@ def get_point_data(id, lat_lon, vicinity_in_metres, url=None):
 
 
 def get_fcc_mapping():
-    if len(ASSETS.keys()) == 0: _populate_isdasoil_assets()
-
     print('Retrieving FCC mapping')
-    fcc_mapping_url = ASSETS['fcc'].assets['metadata'].href
+    fcc_mapping_url = st.session_state['ASSETS']['fcc'].assets['metadata'].href
     fcc_mapping_df = pd.read_csv(fcc_mapping_url)
     
     fcc_mapping_mle_df = fcc_mapping_df['Description'].str.lower().str.get_dummies(', ')
@@ -349,10 +344,8 @@ def get_fcc_mapping():
 
 
 def _back_transform(id, data):
-    if len(ASSETS.keys()) == 0: _populate_isdasoil_assets()
-
     print('Transforming data')
-    conversion = ASSETS[id].extra_fields['back-transformation']
+    conversion = st.session_state['ASSETS'][id].extra_fields['back-transformation']
     return CONVERSION_FUNCS_DICT[conversion](data)
 
 

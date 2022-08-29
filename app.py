@@ -20,7 +20,7 @@ if 'is_selected' not in st.session_state:
     st.session_state['is_selected'] = False
 
 if 'ASSETS' not in st.session_state:
-    st.session_state['ASSETS'] = isdasoil.populate_isdasoil_assets()
+    st.session_state['ASSETS'] = isdasoil.get_isdasoil_assets()
 
 
 def main_page():

@@ -32,7 +32,9 @@ FCC_CONSTRAINTS_DICT = {
     'fcc_sulfidic': 'Sulfidic'
 }
 
-def populate_isdasoil_assets():
+def get_isdasoil_assets():
+    assets_dict = dict()
+
     print('Populating iSDAsoil assets...')
     catalog = Catalog.from_file("https://isdasoil.s3.amazonaws.com/catalog.json")
 
@@ -41,9 +43,10 @@ def populate_isdasoil_assets():
             for asset in item.assets.values():
                 if asset.roles == ['data']:
                     # save all items to a dictionary as we go along
-                    st.session_state['ASSETS'][item.id] = item
+                    assets_dict[item.id] = item
     
     print('Populated iSDAsoil assets!')
+    return assets_dict
 
 
 def _get_url(id):

@@ -9,7 +9,13 @@ st.set_page_config(page_title='AWS-ASDI',
                    layout='wide', 
                    initial_sidebar_state='expanded')
 
- 
+if 'default_point' not in st.session_state:
+    st.session_state['default_point'] = (-1.77595, 29.72785)
+
+if 'vicinity' not in st.session_state:
+    st.session_state['vicinity'] = 300
+
+
 def main_page():
     st.markdown("# Main page 🎈")
     st.sidebar.markdown("# Main page 🎈")

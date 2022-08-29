@@ -20,27 +20,22 @@ DATASET_ID_MAPPING = {
 
 
 def render_page():
-    
-    # Specify initial bounding box
-    start_lat_lon = (-1.7622, 29.7138) 
-    end_lat_lon = (-1.7897, 29.7419)
-    midpoint_lat_lon = LineString([start_lat_lon, end_lat_lon]).centroid
-    midpoint_lat_lon = (midpoint_lat_lon.x, midpoint_lat_lon.y)
 
     col1, col2 = st.columns([1, 3])
 
     with col1:
         # Render map
-        map = folium.Map(location=midpoint_lat_lon, width='50%', zoom_start=15)
+        map = folium.Map(location=st.session_state['default_point'], width='50%', zoom_start=15)
         st.text('Click on your Location on the Map')
         selected_point = st_folium(map, width=1000, height=500)
 
     with col2:
         if selected_point['last_clicked']:
             point = (selected_point['last_clicked']['lat'], selected_point['last_clicked']['lng'])
-            tooltip = 'Selected Point'    
+            st.session_state['selected_point'] = point
+            tooltip = 'Selected Point'
         else:
-            point = midpoint_lat_lon
+            point = st.session_state['default_point']
             tooltip ='Default Point'
 
         res = functions.reverse_geocode(point)
@@ -50,6 +45,7 @@ def render_page():
         st_folium(map, width=1500, height=500)
 
     vicinity = st.slider('Select area (in metres): ', min_value=0, max_value=3000, value=300)
+    st.session_state['vicinity'] = vicinity
 
     # Show DataFrame
     df = pd.DataFrame([], columns=['x_idx', 'y_idx'])

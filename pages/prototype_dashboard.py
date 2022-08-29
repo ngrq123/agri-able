@@ -21,6 +21,10 @@ DATASET_ID_MAPPING = {
 point = st.session_state['point']
 vicinity = st.session_state['vicinity']
 
+if 'ASSETS' not in st.session_state:
+    st.session_state['ASSETS'] = isdasoil.get_isdasoil_assets()
+
+
 # Show DataFrame
 df = pd.DataFrame([], columns=['x_idx', 'y_idx'])
 
@@ -47,13 +51,20 @@ st.dataframe(df, width=1500)
 option = st.selectbox('Select dataset to plot on map:', DATASET_ID_MAPPING.keys(), index=4)
 dataset_id = DATASET_ID_MAPPING[option]
 
-# data_arr, geojson, _ = isdasoil.get_bbox_data(dataset_id, start_lat_lon, end_lat_lon)
-geo_json = isdasoil.get_point_geojson(dataset_id, point, vicinity)
+if option != 'Fertility Capability Classification':
+    geo_json = isdasoil.get_point_geojson(dataset_id, point, vicinity)
 
-df = pd.DataFrame(data_arr[0])
-df = df.stack().reset_index()
-df.columns = ['x_idx', 'y_idx', dataset_id]
-df['id'] = df['x_idx'].astype('str') + '|' + df['y_idx'].astype('str')
+    plot_df = df[['x_idx', 'y_idx', option]]
+else:
+    # Plot number of constraints instead
+    option = 'num_constraints'
+    df[option] = df[list(isdasoil.FCC_CONSTRAINTS_DICT.keys())].sum(axis=1)
+    plot_df = df[['x_idx', 'y_idx', option]]
+
+    temp_arr = plot_df.set_index(['x_idx', 'y_idx']).unstack(level=-1).values
+    geo_json = isdasoil.get_point_geojson(dataset_id, point, vicinity, data_arr=temp_arr)
+
+plot_df['id'] = plot_df['x_idx'].astype('str') + '|' + plot_df['y_idx'].astype('str')
 
 # Plot map
 zoom_start = 17 + int(vicinity / 1000)
@@ -62,10 +73,10 @@ africa_map = folium.Map(location=point, zoom_start=zoom_start)
 folium.Choropleth(
     geo_data=geo_json,
     name=dataset_id,
-    data=df,
-    columns=['id', dataset_id],
+    data=plot_df,
+    columns=['id', option],
     key_on="feature.id",
-    fill_color="YlGn",
+    fill_color="Greens",
     fill_opacity=0.7,
     line_opacity=0.2,
     legend_name=option

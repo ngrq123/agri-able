@@ -151,17 +151,26 @@ def get_bbox_data(id, start_lat_lon, end_lat_lon, url=None, union=True):
                         polygons_lst.append(geo_json_lst[area_x][area_y])
 
                         # Add surrounding areas to frontier
-                        #   x, y  | x+1, y
-                        #  x, y-1 | 
-                        for offset in [-1, 1]:
-                            neighbour_x = area_x + offset if offset == 1 else area_x
-                            neighbour_y = area_y + offset if offset == -1 else area_y
+                        #   x, y  | x, y+1
+                        #  x+1, y | 
+                        # Down
+                        neighbour_x = area_x + 1
+                        neighbour_y = area_y
 
-                            if neighbour_x >= 0 and \
-                                neighbour_y >= 0 and \
-                                neighbour_x < x_lim and \
-                                neighbour_y < y_lim:
-                                frontier.append([neighbour_x, neighbour_y])
+                        if neighbour_x >= 0 and \
+                            neighbour_y >= 0 and \
+                            neighbour_x < x_lim and \
+                            neighbour_y < y_lim:
+                            frontier.append([neighbour_x, neighbour_y])
+                        # Right
+                        neighbour_x = area_x
+                        neighbour_y = area_y + 1
+
+                        if neighbour_x >= 0 and \
+                            neighbour_y >= 0 and \
+                            neighbour_x < x_lim and \
+                            neighbour_y < y_lim:
+                            frontier.append([neighbour_x, neighbour_y])
 
                 if len(polygons_lst) > 0:
                     # Merge polygons
@@ -210,12 +219,12 @@ def get_point_geojson(id, lat_lon, vicinity_in_metres, data_arr=None, union=True
 
         window = rio.windows.Window(coords[1] - offset, coords[0] - offset, offset * 2 + 1, offset * 2 + 1)
 
-        if not data_arr:
+        if data_arr is None:
             print('Getting data from file')
             arr = file.read(window=window)
             arr = _back_transform(id, arr)
         else:
-            arr = data_arr
+            arr = np.array([data_arr])
 
         # Get lon/lat
         transformer = Transformer.from_crs(file.crs, "epsg:4326")
@@ -269,17 +278,26 @@ def get_point_geojson(id, lat_lon, vicinity_in_metres, data_arr=None, union=True
                         polygons_lst.append(geo_json_lst[area_x][area_y])
 
                         # Add surrounding areas to frontier
-                        #   x, y  | x+1, y
-                        #  x, y-1 | 
-                        for offset in [-1, 1]:
-                            neighbour_x = area_x + offset if offset == 1 else area_x
-                            neighbour_y = area_y + offset if offset == -1 else area_y
+                        #   x, y  | x, y+1
+                        #  x+1, y | 
+                        # Down
+                        neighbour_x = area_x + 1
+                        neighbour_y = area_y
 
-                            if neighbour_x >= 0 and \
-                                neighbour_y >= 0 and \
-                                neighbour_x < x_lim and \
-                                neighbour_y < y_lim:
-                                frontier.append([neighbour_x, neighbour_y])
+                        if neighbour_x >= 0 and \
+                            neighbour_y >= 0 and \
+                            neighbour_x < x_lim and \
+                            neighbour_y < y_lim:
+                            frontier.append([neighbour_x, neighbour_y])
+                        # Right
+                        neighbour_x = area_x
+                        neighbour_y = area_y + 1
+
+                        if neighbour_x >= 0 and \
+                            neighbour_y >= 0 and \
+                            neighbour_x < x_lim and \
+                            neighbour_y < y_lim:
+                            frontier.append([neighbour_x, neighbour_y])
 
                 if len(polygons_lst) > 0:
                     # Merge polygons

@@ -19,9 +19,6 @@ if 'vicinity' not in st.session_state:
 if 'is_selected' not in st.session_state:
     st.session_state['is_selected'] = False
 
-if 'ASSETS' not in st.session_state:
-    st.session_state['ASSETS'] = isdasoil.get_isdasoil_assets()
-
 
 def main_page():
     st.markdown("# Main page 🎈")

@@ -1,3 +1,4 @@
+from statistics import mean
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -6,7 +7,7 @@ import altair as alt
 import utils.functions as functions
 
 from streamlit_option_menu import option_menu
-import streamlit.components.v1 as html
+import streamlit.components.v1 as components
 
 # Page 1: Settings Page
 # Page 2: Descriptive Views, FCC constraints, plot distribution of the number of constraints
@@ -35,6 +36,55 @@ st.write(f'Selected country: {country}')
 temp = functions.extract_country_weather(country_code, 'temp')
 rainfall = functions.extract_country_weather(country_code, 'rainfall')
 
+mean_rainfall = rainfall.mean(axis=1)
+mean_temp = temp.mean(axis=1)
+
+isdasoil_df['temp'] = mean_temp[0]
+isdasoil_df['rainfall'] = mean_rainfall[0]
+
+
+# isdasoil_df.insert(loc=0, column='rainfall', value = mean_rainfall[0])
+# isdasoil_df.insert(loc=1, column='temp', value = mean_rainfall[0])
+
+isdasoil_df_splice = isdasoil_df[['x_idx', 'y_idx', 'Fertility Capability Classification',
+                                'Soil Nitrogen' ,'Soil Phosphorous', 'Soil Potassium', 'Soil pH', 'fcc_description']]
+st.write(isdasoil_df_splice)
+
+
+# this part prints out the distribution of all the soil properties
+st.header("Distribution of Soil Properties")
+col1, col2 = st.columns(2)
+with col1:
+    st.subheader("Soil Nitrogen")
+    subset = isdasoil_df['Soil Nitrogen']
+    counts = subset.value_counts()
+    # st.write(counts)
+    st.bar_chart(counts)
+
+with col2:
+    st.subheader("Soil Phosphorous")
+    subset = isdasoil_df['Soil Phosphorous']
+    counts = subset.value_counts()
+    # st.write(counts)
+    st.bar_chart(counts)
+
+col1, col2 = st.columns(2)
+with col1:
+    st.subheader("Soil Potassium")
+    subset = isdasoil_df['Soil Potassium']
+    counts = subset.value_counts()
+    # st.write(counts)
+    st.bar_chart(counts)
+
+with col2:
+    st.subheader("Soil pH")
+    subset = isdasoil_df['Soil pH']
+    counts = subset.value_counts()
+    # st.write(counts)
+    st.bar_chart(counts)
+
+
+st.header("Weather and Temperature Information")
 col1, col2 = st.columns(2)
 
 with col1:
@@ -64,7 +114,6 @@ with col2:
     st.altair_chart(c, use_container_width=True)
     st.write(f'Average temperature in {country} is ', float(temp.sum(axis=1))/12)
 
-st.write(isdasoil_df)
 
 #getting averages of soil table
 soil_nitro_avg = isdasoil_df["Soil Nitrogen"].mean()
@@ -73,11 +122,16 @@ soil_pota_avg = isdasoil_df["Soil Potassium"].mean()
 soil_pH = isdasoil_df["Soil pH"].mean()
 fcc_med = isdasoil_df["Fertility Capability Classification"].median()
 
-#splicing out fcc cols for further calculation
-constraints_df = isdasoil_df.iloc[:, 8:]
+
+# constraints_df = isdasoil_df.iloc[:, 8:]
+
+constraints_df = isdasoil_df[['fcc_al_toxicity', 'fcc_calcareous','fcc_gravelly','fcc_high_erosion_risk_-_shallow_depth',
+                                'fcc_high_erosion_risk_-_steep_slope','fcc_high_erosion_risk_-_textual_contrast', 
+                                'fcc_high_leaching_potential','fcc_low_k', 'fcc_no_constraints', 'fcc_no_data',
+                                'fcc_shallow' ,'fcc_slope', 'fcc_sulfidic']]
+
 constraints_df = constraints_df.drop('fcc_no_constraints',axis=1)
 list_of_cols = list(constraints_df.columns)
-
 # print(list_of_cols)
 
 def cal_no_constraints(filtered_df, cols_list):
@@ -111,12 +165,32 @@ def cal_growable_mods(cols_list):
     return value
 
 col1, col2 = st.columns(2)
+text_col = st.get_option('theme.textColor')
+st.write(text_col)
 with col1:
-    st.subheader("Percentage of Land with no constraints")
-    st.write(str(cal_no_constraints(isdasoil_df,list_of_cols))+"% able to grow")
+    components.html(
+        f"""
+        <div style="color: #FAFAFA ; font-family: sans-serif ; border: 1px solid #31333F; border-radius:5px; padding:5px 15px;">
+            <div>
+                <h2> Percentage of Land with no constraints </h4>
+                <p>{cal_no_constraints(isdasoil_df,list_of_cols)}% able to grow.</p>
+            </div>
+        </div>
+        """
+    )
 with col2:
-    st.subheader("Percentage of land growable with modifications")
-    st.write(str(cal_growable_mods(list_of_cols))+ "% able to grow")
+    components.html(
+        f"""
+        <div style="color: {text_col} ; font-family: sans-serif ; border: 1px solid #31333F; border-radius:5px; padding:5px 15px;">
+            <div>
+                <h2> Percentage of Land with no constraints </h4>
+                <p>{cal_growable_mods(list_of_cols)}% able to grow.</p>
+            </div>
+        </div>
+        """
+    )
+    # st.subheader("Percentage of land growable with modifications")
+    # st.write(str(cal_growable_mods(list_of_cols))+ "% able to grow")
 
 
 # this part generates the FCC charts
@@ -166,20 +240,20 @@ st.write("nitrogen:", soil_nitro_avg)
 st.write("phosphorous:", soil_phos_avg)
 st.write("potassium:", soil_pota_avg)
 st.write("pH:", soil_pH)
+st.write('rainfall:', mean_rainfall[0])
+st.write('temp:', mean_temp[0])
 
-st.header("Crop Recommender")
+st.header("Proposed Modifications")
+
+st.header("Crop Recommender after FCC constraints modifications")
 
 
-# optimal score - state too low or too high
-
-# country is rwanda - temp and rainfall hardcode value
-
-
-st.write(crop_attribute_df)
+# st.write(crop_attribute_df)
 
 suitable_crops = {}
 
 #below appends a list of  crops that meets falls within the range of min max into a dictonary to display into a table
+
 potassium_checker = (soil_pota_avg >= crop_attribute_df["min_potassium"]) & (soil_pota_avg <= crop_attribute_df["max_potassium"])
 pota = crop_attribute_df.loc[potassium_checker, "Crop"].tolist()
 # pota.append('lentil')
@@ -192,6 +266,16 @@ pho = crop_attribute_df.loc[phosphorus_checker, "Crop"].tolist()
 ph_checker = (soil_pH >= crop_attribute_df["min_ph_soil"]) & (soil_pH <= crop_attribute_df["max_ph_soil"])
 ph = crop_attribute_df.loc[ph_checker, "Crop"].tolist()
 # st.write(ph)
+
+mean_temp = mean_temp[0]
+mean_rainfall = mean_rainfall[0]
+# st.write(mean_rainfall)
+
+temp_checker = (mean_temp >= crop_attribute_df["min_temp"]) & (mean_temp <= crop_attribute_df["max_temp"])
+temp = crop_attribute_df.loc[temp_checker, "Crop"].tolist()
+
+rainfall_checker = (mean_rainfall >= crop_attribute_df["min_rainfall"]) & (mean_rainfall <= crop_attribute_df["max_rainfall"])
+temp = crop_attribute_df.loc[temp_checker, "Crop"].tolist()
 
 for crop in pota:
     if crop not in suitable_crops.keys():
@@ -211,6 +295,12 @@ for crop in ph:
     else:
         suitable_crops[crop].append("this are has optimal levels of pH levels for {}".format(crop))
 
+for crop in temp:
+    if crop not in suitable_crops.keys():
+        suitable_crops[crop] = ['this area has optimal levels of temperature levels for {}'.format(crop)]
+    else:
+        suitable_crops[crop].append("this are has optimal levels of temperature for {}".format(crop))
+
 
 # st.write(suitable_crops)
 
@@ -222,7 +312,7 @@ with col2:
 with col3:
     st.subheader("Suitability")
 with col4:
-    st.subheader("Modifiers")
+    st.subheader("Adjustments")
 
 for crop in suitable_crops:
     col1, col2, col3, col4 = st.columns(4)
@@ -239,8 +329,8 @@ for crop in suitable_crops:
 
 
 #converting the dict to df
-recommended = pd.DataFrame.from_dict(suitable_crops)
-st.write(recommended)
+# recommended = pd.DataFrame.from_dict(suitable_crops)
+# st.write(recommended)
 
 
 # FORM code (in case we need it alter)

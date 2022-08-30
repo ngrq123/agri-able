@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import streamlit as st
+import requests
 
 def reverse_geocode(lat_lon):
     """
@@ -28,8 +29,42 @@ def extract_country_weather(country_code, variable):
         country_code = str.upper(country_code)
         df = pd.read_csv(f"data/{variable}_forecasted.csv")
         df = df[df['country_code_alpha2'] == country_code].iloc[:,-12:].reset_index(drop=True)
+        df.columns = pd.to_datetime(df.columns).date
         df.index=[variable]
         return df
+
+def hover_line_chart(data,x,y,x_title, y_title, title):
+    hover = alt.selection_single(
+        fields=[x],
+        nearest=True,
+        on="mouseover",
+        empty="none",
+    )
+
+    lines = (
+        alt.Chart(data, title=title).mark_line().encode(
+            alt.X(x, title=x_title),
+            alt.Y(y, title=y_title)
+        )
+    )
+    points = lines.transform_filter(hover).mark_circle(size=65)
+
+    # Draw a rule at the location of the selection
+    tooltips = (
+        alt.Chart(data)
+        .mark_rule()
+        .encode(
+            x=x,
+            y=y,
+            opacity=alt.condition(hover, alt.value(0.3), alt.value(0)),
+            tooltip=[
+                alt.Tooltip(x, title=x_title),
+                alt.Tooltip(y, title=y_title),
+            ],
+        )
+        .add_selection(hover)
+    )
+    return (lines + points + tooltips).interactive()
 
 def initialise_app():
     # Config 

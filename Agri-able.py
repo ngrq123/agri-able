@@ -199,25 +199,16 @@ st.markdown('## Weather')
 col1, col2 = st.columns(2)
 
 with col1:
-    c = alt.Chart(rainfall.T.reset_index(), title=f"Forecasted Rainfall in {country} for 2023").mark_line().encode(
-        alt.X('index',title='Month'),
-        alt.Y('rainfall', title='Total Rainfall (mm)'),
-        tooltip=[
-            alt.Tooltip("index", title="Month"),
-            alt.Tooltip("rainfall", title="Total Rainfall (mm)")]
-    ).interactive()
+    c = functions.hover_line_chart(data=rainfall.T.reset_index(), x='index', y='rainfall',
+                                   x_title="Month", y_title='Total Rainfall (mm)',
+                                   title=f"Forecasted Rainfall in {country} for 2023")
     st.altair_chart(c, use_container_width=True)
 
 with col2:
-    c = alt.Chart(temp.T.reset_index(), title=f"Forecasted Monthly Temperature in {country} for 2023").mark_line().encode(
-        alt.X('index',title='Month'),
-        alt.Y('temp', title='Average Temp (C)'),
-        tooltip=[
-            alt.Tooltip("index", title="Month"),
-            alt.Tooltip("temp", title="Average Temp (C)")]
-    ).interactive()
+    c = functions.hover_line_chart(data=temp.T.reset_index(), x='index', y='temp',
+                                   x_title="Month", y_title='Average Temp (C)',
+                                   title=f"Forecasted Monthly Temperature in {country} for 2023")
     st.altair_chart(c, use_container_width=True)
-    # st.write(f'Average temperature in {country} is ', float(temp.sum(axis=1))/12)
 
 
 st.markdown('## Crop Recommendations')

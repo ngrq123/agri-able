@@ -76,8 +76,8 @@ temp = functions.extract_country_weather(country_code, 'temp')
 rainfall = functions.extract_country_weather(country_code, 'rainfall')
 
 ## Crop
-crop_df = pd.read_csv("data/crop_attributes.csv")
-crop_desc_df = pd.read_csv("data/crops.csv")
+crop_df = pd.read_csv("./data/crop_attributes.csv")
+crop_desc_df = pd.read_csv("./data/crops.csv")
 
 st.markdown("# Agri-able")
 
@@ -102,7 +102,7 @@ with st.expander('Show raw data per plot'):
 col1, col2 = st.columns(2)
 
 with col1:
-    option = st.selectbox('Select dataset to plot on map:', DATASET_ID_MAPPING.keys(), index=3)
+    option = st.selectbox('Select dataset to plot on map:', DATASET_ID_MAPPING.keys())
     dataset_id = DATASET_ID_MAPPING[option]
 
     if option != 'Fertility Capability Classification':

@@ -5,7 +5,7 @@ import utils.extract_isdasoil as isdasoil
 st.title('Soil Adjustments')
 
 st.markdown("""
-    The following are the features used for the crop recommender
+    The following are some features used for the crop recommender
     (excluding sodium). Adjustments to the soil conditions (depending
     on whether it is too high or too low), are detailed in this page.
 """)
@@ -16,7 +16,8 @@ feature_dict = {
     'ph': 'pH',
     'sodium': 'Sodium',
     'potassium': 'Potassium',
-    'phosphorus': 'Phosphorus'
+    'phosphorus': 'Phosphorus',
+    'rainfall': 'Rainfall'
 }
 
 with col1:

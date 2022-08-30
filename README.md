@@ -14,15 +14,15 @@
 Agri-able targets the African continent, due to the following reasons:
 1. **Africa is amongst the worst hit by food insecurity**, as seen in Figure 2 
 
-![](./images/fao-food-insecurity-map.png)
+<img src="./images/fao-food-insecurity-map.png" width="750"/>
 Figure 2: FAO Food Insecurity Map (Food and Agriculture Organization of the United Nations, 2022)
 
-2. **African agriculture sector is one of the least efficient**, as seen in Figure 3. Having more access to information could help them in becoming more efficient 
-  
-![](./images/agriculture-value-added-per-worker-wdi.png)
+1. **African agriculture sector is one of the least efficient**, as seen in Figure 3. Having more access to information could help them in becoming more efficient 
+
+<img src="./images/agriculture-value-added-per-worker-wdi.png" width="750"/>
 Figure 3: Agriculture value added per worker (Ritchie, 2022)
 
-3. **Larger impact of rising food prices on lower income countries**, since a larger portion of their income is spent on food (The World Bank, 2022). Approximately 45% and 60% of total household consumption expenditure was spent on food for Uganda and Tanzania, respectively, as compared to about 15% for the US (Kavanagh, 2019). The Food and Agriculture Organization’s (FAO’S) Food Price Index rose by 55.2% between May 2020 and February 2022 (Barua, 2022). With improved crop yields from using Agri-able, it could help to lower food prices for the African community
+1. **Larger impact of rising food prices on lower income countries**, since a larger portion of their income is spent on food (The World Bank, 2022). Approximately 45% and 60% of total household consumption expenditure was spent on food for Uganda and Tanzania, respectively, as compared to about 15% for the US (Kavanagh, 2019). The Food and Agriculture Organization’s (FAO’S) Food Price Index rose by 55.2% between May 2020 and February 2022 (Barua, 2022). With improved crop yields from using Agri-able, it could help to lower food prices for the African community
 
 User groups for the tool could include:
 1. **Farmers**, who could access the tool fully online, without any additional investments aside from a mobile phone or computer that can access the internet

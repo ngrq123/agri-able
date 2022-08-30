@@ -1,5 +1,5 @@
 ﻿# Agri-able
-A tool to help the African farming community to optimize crop production
+> _A tool to help the African farming community to optimize crop production_
 
 ## Abstract
 Agri-able is a tool that aims to help the African farming community optimize crop production. The global demand for food greatly outstrips that for supply, and there is an urgent need for interventions to address this balance. 
@@ -34,13 +34,13 @@ Agri-able targets the African continent, due to the following reasons:
 
 _Figure 2: FAO Food Insecurity Map (Food and Agriculture Organization of the United Nations, 2022)_
 
-1. **African agriculture sector is one of the least efficient**, as seen in Figure 3. Having more access to information could help them in becoming more efficient 
+2. **African agriculture sector is one of the least efficient**, as seen in Figure 3. Having more access to information could help them in becoming more efficient 
 
 <img src="./images/agriculture-value-added-per-worker-wdi.png" width="750"/>
 
 _Figure 3: Agriculture value added per worker (Ritchie, 2022)_
 
-1. **Larger impact of rising food prices on lower income countries**, since a larger portion of their income is spent on food (The World Bank, 2022). Approximately 45% and 60% of total household consumption expenditure was spent on food for Uganda and Tanzania, respectively, as compared to about 15% for the US (Kavanagh, 2019). The Food and Agriculture Organization’s (FAO’S) Food Price Index rose by 55.2% between May 2020 and February 2022 (Barua, 2022). With improved crop yields from using Agri-able, it could help to lower food prices for the African community
+3. **Larger impact of rising food prices on lower income countries**, since a larger portion of their income is spent on food (The World Bank, 2022). Approximately 45% and 60% of total household consumption expenditure was spent on food for Uganda and Tanzania, respectively, as compared to about 15% for the US (Kavanagh, 2019). The Food and Agriculture Organization’s (FAO’S) Food Price Index rose by 55.2% between May 2020 and February 2022 (Barua, 2022). With improved crop yields from using Agri-able, it could help to lower food prices for the African community
 
 User groups for the tool could include:
 1. **Farmers**, who could access the tool fully online, without any additional investments aside from a mobile phone or computer that can access the internet
@@ -220,7 +220,7 @@ Desirability, feasibility, and viability is the holy trinity for innovation. Ide
 The following summarizes the considerations for each of the criteria, some of which have been mentioned throughout the report:
 
 - Desirability
-  - Africa is amongst the worst hit by food insecurity, and the information provided by Agri-able could help educate the African farming community to enhance their crop yields 
+  - Africa is amongst the **worst hit by food insecurity**, and the information provided by Agri-able could help educate the African farming community to enhance their crop yields 
   - The African agriculture sector is one of the least efficient, and having more access to information could help them in becoming more efficient 
   - For lower income countries, a larger portion of their income is spent on food. The rising food prices further challenges food security for them. Improved crop yields from using Agri-able could help to keep food prices low for the African community
   - African governments, agricultural ministries, and international aid groups could use the tool to better understand existing and ideal conditions, and provide necessary support to the farmers
@@ -242,22 +242,19 @@ There were many datasets available for this hackathon, and the first major hurdl
 
 To be able to compare data in the same manner, conversion into a common unit was required. For example, some data was in parts per million, while others were in kg/ha. However, once the initial conversion was discovered and done, subsequent handling was seamless.
 
-### Generalizing Soil Conditions from 30m by 30m Plots
-
-
 ## Accomplishments
 
-- Building a solution that can potentially solve a huge global problem, that is also in line with the UN SDGs
-- Reducing the granular geospatial data by merging plots of 30x30m together to improve dashboard performance
-- Understanding more about the physical and environmental constraints on crop farming, and turning other qualitative and quantitative data into insights
+- **Building a solution that can potentially solve a huge global problem**, that is also in line with the UN SDGs
+- **Reducing the granular geospatial data** by merging plots of 30x30m together to improve dashboard performance
+- **Understanding more about the physical and environmental constraints** on crop farming, and turning other qualitative and quantitative data into insights
 
 ## What We Learned
-- Geospatial analysis - transforming and converting geospatial data across various formats and data types; for instance, we have to understand the format the iSDAsoil data is stored before extracting and back transforming to the right units
-- Transforming shapes using Shapely - various plots of land were merged together for faster app performance, but the logic can be complex as various criteria have to be put into consideration (e.g. polygon with holes)
-- Graph algorithm - coding out the breadth-first search algorithm to merge various 30x30m plots when they are side by side and having the same values
-- Reverse geocoding with Nominatim - to further personalise the recommendations and joining with weather data, we utilised an open source API, Nominatim, to convert the latitude and longitude into human readable addresses
-- Time series forecasting with  Prophet - putting ourselves in the shoes of the users, they will use Agri-able for crop planning which predicted weather data will be useful
 
+- **Geospatial analysis** - transforming and converting geospatial data across various formats and data types; for instance, we have to understand the format the iSDAsoil data is stored before extracting and back transforming to the right units
+- **Transforming shapes using Shapely** - various plots of land were merged together for faster app performance, but the logic can be complex as various criteria have to be put into consideration (e.g. polygon with holes)
+- **Graph algorithm** - coding out the breadth-first search algorithm to merge various 30x30m plots when they are side by side and having the same values
+- **Reverse geocoding with Nominatim** - to further personalise the recommendations and joining with weather data, we utilised an open source API, Nominatim, to convert the latitude and longitude into human readable addresses
+- **Time series forecasting with  Prophet** - putting ourselves in the shoes of the users, they will use Agri-able for crop planning which predicted weather data will be useful
 
 ## Future Work
 Agri-able is built with scalability in mind. It can be scaled up in several ways, and most times, the limiting factor is the availability of relevant data. 
@@ -286,17 +283,18 @@ Currently, the following crops are included in Agri-able:
 
 This can definitely be expanded to include more crops to be recommended.
 
-### Provide forecast on harvest yield and potential revenue
+### Provide Forecast on Harvest Yield and Potential Revenue
 A future enhancement would be to layer an optimization engine to provide a forecast on yields based on selected crops. This will enable users to make calculated decisions on their crop choice based on multiple factors such as time, quantity, probability and revenue of yield.
 
-### Validating desirability with users
+### Validating Desirability with Users
 Primary research could be conducted with the target users that are highlighted in the “Target users” section, to validate user pain points and needs. This could help to refine the proposition and features of Agri-able.
 
-### Validating assumptions with experts
+### Validating Assumptions with Experts
 Several assumptions and generalization were made in the creation of Agri-able, for scoping and knowledge limitation purposes. The accuracy and feasibility of the tool could be improved via primary research with experts in relevant areas, including farming, soil conditions, etc. 
 
 ## Conclusion
 Through the use of the different types of analytics, it is certain that Agri-able has been built in line with the UN SDG goal to end hunger, achieve food security and improved nutrition and promote sustainable agriculture. Agri-able first diagnoses the constraints of the selected plot, then provides descriptive charts to allow users to visualise and understand what they are working with. Next, Agri-able predicts future weather conditions and utilises those predictions for prescribing the kinds of crops to grow. Agri-able also presents other forms of prescriptions, including remedies to resolve fertility constraints and environment constraints, to help farmers optimise crop growing conditions. Lastly, Agri-able prescribes places where farmers can purchase supplies in an effort to make farming more accessible.
+
 We hope Agri-able becomes the preferred choice for understanding land and environment conditions for farmers, businesses and governments alike to optimise crop production.
 
 
@@ -304,29 +302,20 @@ We hope Agri-able becomes the preferred choice for understanding land and enviro
 
 Adepoju, P. (2021, November 7). Africa worst hit by climate change impacts, COP26 told. Nature. Retrieved August 26, 2022, from https://www.nature.com/articles/d44148-021-00107-z
 
-
 Barua, A. (2022, May 31). Sizzling food prices are leading to global heartburn. Deloitte Insights. Retrieved August 26, 2022, from https://www2.deloitte.com/xe/en/insights/economy/global-food-prices-inflation.html
-
 
 Food and Agriculture Organization of the United Nations. (2022). The state of food security and nutrition in the world 2022. Retrieved August 26, 2022, from https://www.fao.org/publications/sofi/2022/en/
 
-
 Kavanagh, M. (2019, January 8). Household food spending divides the world. Financial Times. Retrieved August 26, 2022, from https://www.ft.com/content/cdd62792-0e85-11e9-acdc-4d9976f1533b
-
 
 Mersie, A. (2022, April 5). Hunger in Africa surges due to conflict, climate and food prices. Reuters. Retrieved August 26, 2022, from https://www.reuters.com/world/africa/hunger-africa-surges-due-conflict-climate-food-prices-2022-04-05/
 
-
 Relief Web. (2021). FAO statistical yearbook 2021 - world food and agriculture. Https://Reliefweb.Int/Report/World/Fao-Statistical-Yearbook-2021-World-Food-and-Agriculture. Retrieved August 26, 2022, from https://reliefweb.int/report/world/fao-statistical-yearbook-2021-world-food-and-agriculture
-
 
 Ritchie, H. (2022, April 4). Increasing agricultural productivity across Sub-Saharan Africa is one of the most important problems this century. Our World in Data. Retrieved August 26, 2022, from https://ourworldindata.org/africa-yields-problem
 
-
 The World Bank. (2022, August 15). Food Security Update. Understand Poverty - Agriculture and Food. Retrieved August 26, 2022, from https://www.worldbank.org/en/topic/agriculture/brief/food-security-update
 
-
 United Nations. (n.d.). Global issues - population. Retrieved August 26, 2022, from https://www.un.org/en/global-issues/population
-
 
 United Nations. (2021). The world’s food supply is made insecure by climate change. Retrieved August 26, 2022, from https://www.un.org/en/academic-impact/worlds-food-supply-made-insecure-climate-change

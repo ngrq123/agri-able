@@ -1,4 +1,4 @@
-import requests
+import altair as alt
 import pandas as pd
 import streamlit as st
 import requests
@@ -80,3 +80,36 @@ def initialise_app():
 
     if 'is_selected' not in st.session_state:
         st.session_state['is_selected'] = False
+
+
+def recommend_crops(env_df, crop_df, temp_df, rainfall_df):
+    recommendation_df = crop_df[['Crop']].copy()
+
+    soil_phos_avg = env_df["Soil Phosphorous"].mean()
+    soil_pota_avg = env_df["Soil Potassium"].mean()
+    soil_pH_avg = env_df["Soil pH"].mean()
+    mean_temp = temp_df.mean(axis=1)[0]
+    mean_rainfall = rainfall_df.mean(axis=1)[0]
+
+    recommendation_df['potassium'] = _calculate_suitability(crop_df["min_potassium"], crop_df["max_potassium"], soil_pota_avg)
+    recommendation_df['phosphorus'] = _calculate_suitability(crop_df["min_phosphorus"], crop_df["max_phosphorus"], soil_phos_avg)
+    recommendation_df['pH'] = _calculate_suitability(crop_df["min_ph_soil"], crop_df["max_ph_soil"], soil_pH_avg)
+    recommendation_df['temperature'] = _calculate_suitability(crop_df["min_temp"], crop_df["max_temp"], mean_temp)
+    recommendation_df['rainfall'] = _calculate_suitability(crop_df["min_rainfall"], crop_df["max_rainfall"], mean_rainfall)
+
+    recommendation_df['num_suitable'] = (recommendation_df == 'optimal').sum(axis=1)
+    recommendation_df = recommendation_df.loc[(recommendation_df['num_suitable'] > 0) & (recommendation_df['temperature'] == 'optimal')]
+    recommendation_df = recommendation_df.sort_values('num_suitable', ascending=False)
+
+    return recommendation_df
+
+def _calculate_suitability(min_series, max_series, available_amount):
+    results = []
+    for min_val, max_val in zip(min_series.values, max_series.values):
+        if available_amount < min_val:
+            results.append('low')
+        elif available_amount > max_val:
+            results.append('high')
+        else:
+            results.append('optimal')
+    return results

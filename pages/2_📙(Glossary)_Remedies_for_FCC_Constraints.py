@@ -16,7 +16,7 @@ st.markdown("""
 
 for constraint_key in isdasoil.FCC_CONSTRAINTS_DICT:
     constraint = isdasoil.FCC_CONSTRAINTS_DICT[constraint_key]
-    with st.expander(constraint, expanded=True):
+    with st.expander(constraint):
         content = open('./data/mods/' + constraint_key + '.md', 'r', encoding='utf8')
         content = content.read()
         st.markdown(content, unsafe_allow_html=True)

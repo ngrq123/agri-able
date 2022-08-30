@@ -23,7 +23,7 @@ with col1:
     st.markdown('Too High')
     for feature_key in feature_dict:
         feature = feature_dict[feature_key]
-        with st.expander(feature, expanded=True):
+        with st.expander(feature):
             content = open('./data/adjs/' + feature_key + '_high.md', 'r', encoding='utf8')
             content = content.read()
             st.markdown(content, unsafe_allow_html=True)
@@ -32,7 +32,7 @@ with col2:
     st.markdown('Too Low')
     for feature_key in feature_dict:
         feature = feature_dict[feature_key]
-        with st.expander(feature, expanded=True):
+        with st.expander(feature):
             content = open('./data/adjs/' + feature_key + '_low.md', 'r', encoding='utf8')
             content = content.read()
             st.markdown(content, unsafe_allow_html=True)

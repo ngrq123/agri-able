@@ -75,9 +75,9 @@ df = df.rename({'fcc_description': 'FCC Constraints'}, axis=1)
 temp = functions.extract_country_weather(country_code, 'temp')
 rainfall = functions.extract_country_weather(country_code, 'rainfall')
 
-mean_rainfall = rainfall.mean(axis=1)[0]
-mean_temp = temp.mean(axis=1)[0]
-
+## Crop
+crop_df = pd.read_csv("data/crop_attributes.csv")
+crop_desc_df = pd.read_csv("data/crops.csv")
 
 st.markdown("# Agri-able")
 
@@ -118,6 +118,7 @@ with col1:
         temp_arr = plot_df.set_index(['x_idx', 'y_idx']).unstack(level=-1).values
         geo_json = isdasoil.get_point_geojson(dataset_id, point, vicinity, data_arr=temp_arr)
 
+    plot_df = plot_df.copy()
     plot_df['id'] = plot_df['x_idx'].astype('str') + '|' + plot_df['y_idx'].astype('str')
 
     # Plot map
@@ -213,6 +214,46 @@ with col2:
 
 st.markdown('## Crop Recommendations')
 
+recommendation_df = functions.recommend_crops(df, crop_df, temp, rainfall)
+
+if recommendation_df.shape[0] == 0:
+    st.markdown('There are no crops to recommend for this area.')
+else:
+    col1, col2, col3, col4 = st.columns([1, 4, 2, 2])
+    with col1:
+        st.markdown('**Crop**')
+    with col2:
+        st.markdown('**Description**')
+    with col3:
+        st.markdown('**Suitability**')
+    with col4:
+        st.markdown('**Adjustments**')
+
+    for _, row in recommendation_df.iterrows():
+        crop = row['Crop']
+        suitable = list(filter(lambda col: row[col] == 'optimal', row.keys()))
+        adjustments = list(filter(lambda col: (row[col] != 'optimal') and (col not in ['Crop', 'num_suitable']), row.keys()))
+
+        col1, col2, col3, col4 = st.columns([1, 4, 2, 2])
+        with col1:
+            url = crop_desc_df.loc[crop_desc_df['Crop'] == crop]['URL'].item()
+            st.image(url, use_column_width='always')
+            st.markdown(crop)
+        with col2:
+            desc = crop_desc_df.loc[crop_desc_df['Crop'] == crop]['Description'].item()
+            st.markdown(desc)
+        with col3:
+            for feature in suitable:
+                st.markdown(f"- This area has optimal levels of **{feature}** for {crop}")
+        with col4:
+            for feature in adjustments:
+                value = recommendation_df.loc[recommendation_df['Crop'] == crop, feature].values[0]
+                with st.expander(str(value).capitalize() + ' ' + feature):
+                    content = open('./data/adjs/' + feature + '_' + value + '_summary.md', 'r', encoding='utf8')
+                    content = content.read()
+                    st.markdown(content, unsafe_allow_html=True)
+        
+        st.markdown('---')
 
 st.markdown('## Places to Purchase Farming Supplies')
 

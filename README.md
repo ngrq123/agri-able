@@ -1,6 +1,19 @@
 ﻿# Agri-able
 > _A tool to help the African farming community to optimize crop production_
 
+## How to Run Locally (OS X)
+
+1. Clone this repository
+2. Run `pip install -r requirements.txt` to install the required dependencies
+3. Run `streamlit run Agri-able.py` and copy the URL to your web browser
+
+## How to Run Locally (Windows)
+
+1. Clone this repository
+2. Install Anaconda/Miniconda, then create a conda environment
+3. Activate the virtual environment, then run `conda install -c conda-forge --file requirements.txt` to install the required dependencies
+4. Run `streamlit run Agri-able.py` and copy the URL to your web browser
+
 ## Abstract
 Agri-able is a tool that aims to help the African farming community optimize crop production. The global demand for food greatly outstrips that for supply, and there is an urgent need for interventions to address this balance. 
 

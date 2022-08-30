@@ -31,6 +31,9 @@ FCC_CONSTRAINTS_DICT = {
     'fcc_slope': 'Slope',
     'fcc_sulfidic': 'Sulfidic'
 }
+FCC_MODIFIABLE_CONSTRAINTS = ['fcc_al_toxicity', 'fcc_calcareous', 'fcc_gravelly', 
+                                'fcc_high_leaching_potential', 'fcc_low_k', 'fcc_shallow',
+                                'fcc_slope', 'fcc_sulfidic']
 
 def get_isdasoil_assets():
     assets_dict = dict()

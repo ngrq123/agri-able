@@ -1,4 +1,3 @@
-from statistics import mean
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -6,9 +5,7 @@ import altair as alt
 
 import utils.functions as functions
 
-from streamlit_option_menu import option_menu
-import streamlit.components.v1 as components
-import hydralit_components as hc
+# import hydralit_components as hc
 
 # Page 1: Settings Page
 # Page 2: Descriptive Views, FCC constraints, plot distribution of the number of constraints
@@ -182,12 +179,12 @@ def theme(value):
 with col1:
     value = cal_no_constraints(isdasoil_df,list_of_cols)
     card_theme = theme(value)
-    hc.info_card(title= value ,content='Percentage of Land with no constraints',key='first',bar_value=value, theme_override=card_theme)
+    # hc.info_card(title= value ,content='Percentage of Land with no constraints',key='first',bar_value=value, theme_override=card_theme)
     
 with col2:
     value2 = cal_growable_mods(list_of_cols)
     card_theme = theme(value2)
-    hc.info_card(title=value2, content='Percentage of land growable with modifications',key='sec',bar_value=value2, theme_override=card_theme)
+    # hc.info_card(title=value2, content='Percentage of land growable with modifications',key='sec',bar_value=value2, theme_override=card_theme)
 
 
 # this part generates the FCC charts

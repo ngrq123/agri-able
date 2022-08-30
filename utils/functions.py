@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import streamlit as st
 
 def reverse_geocode(lat_lon):
     """
@@ -31,3 +32,17 @@ def extract_country_weather(country_code, variable):
         df.index=[variable]
         return df
 
+def initialise_app():
+    # Config 
+    st.set_page_config(page_title='AWS-ASDI', 
+                    layout='wide', 
+                    initial_sidebar_state='expanded')
+
+    if 'point' not in st.session_state:
+        st.session_state['point'] = (-1.77595, 29.72785)
+
+    if 'vicinity' not in st.session_state:
+        st.session_state['vicinity'] = 300
+
+    if 'is_selected' not in st.session_state:
+        st.session_state['is_selected'] = False

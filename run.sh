@@ -1,2 +1,2 @@
 #!/bin/bash
-streamlit run app.py
+streamlit run Agri-able.py

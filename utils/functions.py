@@ -26,9 +26,8 @@ def extract_country_weather(country_code, variable):
         raise Exception('not yet implemented')
     else:
         country_code = str.upper(country_code)
-        df = pd.read_csv(f"data/africa_{variable}_cleaned_2021.csv")
+        df = pd.read_csv(f"data/{variable}_forecasted.csv")
         df = df[df['country_code_alpha2'] == country_code].iloc[:,-12:].reset_index(drop=True)
-        df.columns = pd.to_datetime([str(i) + '/2021' for i in range(1, 13)]).date
         df.index=[variable]
         return df
 

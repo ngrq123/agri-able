@@ -199,10 +199,7 @@ st.markdown('## Weather')
 col1, col2 = st.columns(2)
 
 with col1:
-    st.caption(f'Monthly Rainfall in {country} (2021)')
-    st.dataframe(rainfall.style.format("{:.2f}"))
-
-    c = alt.Chart(rainfall.T.reset_index(), title=f"Monthly Rainfall in {country}").mark_line().encode(
+    c = alt.Chart(rainfall.T.reset_index(), title=f"Forecasted Rainfall in {country} for 2023").mark_line().encode(
         alt.X('index',title='Month'),
         alt.Y('rainfall', title='Total Rainfall (mm)'),
         tooltip=[
@@ -210,12 +207,9 @@ with col1:
             alt.Tooltip("rainfall", title="Total Rainfall (mm)")]
     ).interactive()
     st.altair_chart(c, use_container_width=True)
-    # st.write(f'Total annual rainfall in {country} is ', float(rainfall.sum(axis=1)))
 
 with col2:
-    st.caption(f'Monthly Temperature in {country} (2021)')
-    st.dataframe(temp.style.format("{:.2f}"))
-    c = alt.Chart(temp.T.reset_index(), title=f"Monthly Temperature in {country}").mark_line().encode(
+    c = alt.Chart(temp.T.reset_index(), title=f"Forecasted Monthly Temperature in {country} for 2023").mark_line().encode(
         alt.X('index',title='Month'),
         alt.Y('temp', title='Average Temp (C)'),
         tooltip=[

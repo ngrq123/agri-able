@@ -7,8 +7,7 @@ st.title('Remedies for FCC Constraints')
 st.markdown("""
     The following are the constraints for the iSDAsoil's
     implementation of the Fertility Capability Classification (FCC)
-    framework, along with their correponding remedies that 
-    we have collated.
+    framework, along with their correponding remedies.
     
     For more information on how the constraints are being
     identified for each plot, visit https://www.isda-africa.com/isdasoil/faqs/

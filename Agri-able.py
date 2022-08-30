@@ -249,7 +249,7 @@ else:
             for feature in adjustments:
                 value = recommendation_df.loc[recommendation_df['Crop'] == crop, feature].values[0]
                 with st.expander(str(value).capitalize() + ' ' + feature):
-                    content = open('./data/adjs/' + feature + '_' + value + '_summary.md', 'r', encoding='utf8')
+                    content = open('./data/adjs/' + feature.lower() + '_' + value + '_summary.md', 'r', encoding='utf8')
                     content = content.read()
                     st.markdown(content, unsafe_allow_html=True)
         
